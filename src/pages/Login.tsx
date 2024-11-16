@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -11,7 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 type LoginFormInputs = {
   username: string;
@@ -24,10 +26,17 @@ const Login: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormInputs>();
+  const { onLogin, isLoading, error } = useAuth();
+  const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<LoginFormInputs> = (data) => {
-    console.log("Login data:", data);
-    // Aquí llmamos al API
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
+    try {
+      await onLogin(data);
+
+      navigate("/");
+    } catch (err) {
+      console.error("Error al manejar el login:", err);
+    }
   };
 
   return (
@@ -85,11 +94,19 @@ const Login: React.FC = () => {
             helperText={errors.password?.message}
             autoComplete="current-password"
           />
+
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           <Button
             type="submit"
             fullWidth
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
+            disabled={isLoading}
           >
             Iniciar sesión
           </Button>

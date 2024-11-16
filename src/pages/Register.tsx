@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -11,7 +12,8 @@ import {
   Typography,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 type RegisterFormInputs = {
   username: string;
@@ -25,10 +27,16 @@ const Register: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormInputs>();
+  const { onRegister, isLoading, error } = useAuth();
+  const navigate = useNavigate();
 
-  const onSubmit: SubmitHandler<RegisterFormInputs> = (data) => {
-    console.log("Register data:", data);
-    // Aquí llmamos al API
+  const onSubmit: SubmitHandler<RegisterFormInputs> = async (data) => {
+    try {
+      await onRegister(data);
+      navigate("/login");
+    } catch (err) {
+      console.error("Error al manejar el login:", err);
+    }
   };
 
   return (
@@ -99,10 +107,18 @@ const Register: React.FC = () => {
             helperText={errors.password?.message}
             autoComplete="current-password"
           />
+
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {error}
+            </Alert>
+          )}
+
           <Button
             type="submit"
             fullWidth
             variant="contained"
+            disabled={isLoading}
             sx={{ mt: 3, mb: 2 }}
           >
             Registrarse
@@ -111,7 +127,7 @@ const Register: React.FC = () => {
             <Grid item>
               <Typography variant="body2" color="primary">
                 Tienes una cuenta?{" "}
-                <Link to="/" style={{ textDecoration: "none" }}>
+                <Link to="/login" style={{ textDecoration: "none" }}>
                   Inicia sesión
                 </Link>
               </Typography>

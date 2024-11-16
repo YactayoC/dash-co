@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   AppBar,
   Box,
@@ -14,9 +14,16 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("username");
     navigate("/login");
   };
+
+  useEffect(() => {
+    const userName = localStorage.getItem("username");
+    if (!userName) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100vh" }}>
