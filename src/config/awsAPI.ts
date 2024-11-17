@@ -7,11 +7,3 @@ export const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    config.baseURL = config?.baseURL?.replace(/^https?:/, "http:");
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
